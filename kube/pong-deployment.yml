@@ -1,0 +1,61 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: redis-server
+  namespace: ping-pong
+spec:
+  type: ExternalName
+  externalName: redis-server.redis-server.svc.cluster.local
+  ports:
+    - port: 6379
+      protocol: TCP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ping
+  namespace: ping-pong
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ping
+  template:
+    metadata:
+      labels:
+        app: ping
+        name: ping
+    spec:
+      containers:
+      - name: ping
+        image: vbennich/lab:latest
+        imagePullPolicy: Always
+        args: ["ping"]
+      imagePullSecrets:
+      - name: regcred
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pong
+  namespace: ping-pong
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pong
+  template:
+    metadata:
+      labels:
+        app: pong
+        name: pong
+    spec:
+      containers:
+      - name: pong
+        image: vbennich/lab:latest
+        imagePullPolicy: Always
+        args: ["pong"]
+      imagePullSecrets:
+      - name: regcred
